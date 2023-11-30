@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+# Global DNS
+
+jinja2 yb-multiregion-k8s-setup.py.tmpl clusters.yaml > yb-multiregion-k8s-setup.py
+python3 yb-multiregion-k8s-setup.py
+

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+org_id=364447158209
+project=mitsu-dev-402508
+zone_for_bench=asia-northeast1-c
+region_1=asia-northeast1
+region_2=asia-northeast2
+region_3=asia-northeast3
+region=$region_1
+cluster=mitsu-gke-tokyo
+
+# For multi-region YugabyteDB
+init_nodes=1
+machine_type=n1-standard-16
+zone_1=${region_1}-c
+zone_2=${region_2}-c
+zone_3=${region_3}-c
+cluster_1=ydb-1
+cluster_2=ydb-2
+cluster_3=ydb-3
+cluster_src_ip_range=10.0.0.0/8
+orig_context_1=gke_${project}_${zone_1}_${cluster_1}
+orig_context_2=gke_${project}_${zone_2}_${cluster_2}
+orig_context_3=gke_${project}_${zone_3}_${cluster_3}
+context_1=gke_ctxt_1
+context_2=gke_ctxt_2
+context_3=gke_ctxt_3
+total_masters=3
+master_cpu_resource=2
+master_mem_resource=2
+master_replicas_per_region=1
+tserver_cpu_resource=2
+tserver_mem_resource=6
+tserver_replicas_per_region=6
+

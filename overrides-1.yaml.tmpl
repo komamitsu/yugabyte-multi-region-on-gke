@@ -1,0 +1,29 @@
+isMultiAz: True
+
+AZ: {{ clusters.cluster_1.zone }}
+
+masterAddresses: "yb-master-0.yb-masters.yb-{{ clusters.cluster_1.zone }}.svc.cluster.local:7100,yb-master-0.yb-masters.yb-{{ clusters.cluster_2.zone }}.svc.cluster.local:7100,yb-master-0.yb-masters.yb-{{ clusters.cluster_3.zone }}.svc.cluster.local:7100"
+
+# storage:
+#   master:
+#     storageClass: "standard-{{ clusters.cluster_1.zone }}"
+#   tserver:
+#     storageClass: "standard-{{ clusters.cluster_1.zone }}"
+
+replicas:
+  master: {{ clusters.cluster_1.master_replicas_per_region }}
+  tserver: {{ clusters.cluster_1.tserver_replicas_per_region }}
+  totalMasters: {{ clusters.cluster_1.total_masters }}
+
+gflags:
+  master:
+    placement_cloud: "gke"
+    placement_region: "{{ clusters.cluster_1.region }}"
+    placement_zone: "{{ clusters.cluster_1.zone }}"
+    leader_failure_max_missed_heartbeat_periods: 10
+  tserver:
+    placement_cloud: "gke"
+    placement_region: "{{ clusters.cluster_1.region }}"
+    placement_zone: "{{ clusters.cluster_1.zone }}"
+    leader_failure_max_missed_heartbeat_periods: 10
+

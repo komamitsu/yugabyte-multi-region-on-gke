@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+# Install Helm chart
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+cat <<EOF > kube-prom-stack-values.yaml
+grafana:
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+  dashboards:
+    default:
+      yugabytedb:
+        url: https://raw.githubusercontent.com/yugabyte/yugabyte-db/master/cloud/grafana/YugabyteDB.json
+EOF
+
+if [[ $(kubectl --context $context_1 get ns monitoring --ignore-not-found=true | wc -l) -eq 0 ]]; then
+  kubectl create namespace monitoring --context $context_1
+fi
+helm upgrade --install prom prometheus-community/kube-prometheus-stack \
+--namespace monitoring \
+--values kube-prom-stack-values.yaml \
+--kube-context $context_1 --wait &
+
+if [[ $(kubectl --context $context_2 get ns monitoring --ignore-not-found=true | wc -l) -eq 0 ]]; then
+  kubectl create namespace monitoring --context $context_2
+fi
+helm upgrade --install prom prometheus-community/kube-prometheus-stack \
+--namespace monitoring \
+--values kube-prom-stack-values.yaml \
+--kube-context $context_2 --wait &
+
+
+if [[ $(kubectl --context $context_3 get ns monitoring --ignore-not-found=true | wc -l) -eq 0 ]]; then
+  kubectl create namespace monitoring --context $context_3
+fi
+helm upgrade --install prom prometheus-community/kube-prometheus-stack \
+--namespace monitoring \
+--values kube-prom-stack-values.yaml \
+--kube-context $context_3 --wait &
+
+for job in `jobs -p`
+do
+  wait $job
+done
+

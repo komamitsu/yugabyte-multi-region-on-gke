@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+cat > clusters.yaml <<EOF
+clusters:
+  cluster_1:
+    zone: $zone_1
+    region: $region_1
+    context: $context_1
+    total_masters: $total_masters
+    master_replicas_per_region: $master_replicas_per_region
+    tserver_replicas_per_region: $tserver_replicas_per_region
+  cluster_2:
+    zone: $zone_2
+    region: $region_2
+    context: $context_2
+    total_masters: $total_masters
+    master_replicas_per_region: $master_replicas_per_region
+    tserver_replicas_per_region: $tserver_replicas_per_region
+  cluster_3:
+    zone: $zone_3
+    region: $region_3
+    context: $context_3
+    total_masters: $total_masters
+    master_replicas_per_region: $master_replicas_per_region
+    tserver_replicas_per_region: $tserver_replicas_per_region
+EOF
+

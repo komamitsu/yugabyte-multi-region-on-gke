@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+# Cluster#1
+create_cluster_1() {
+  gcloud beta container clusters create $cluster_1 \
+  --machine-type=$machine_type \
+  --num-nodes $init_nodes \
+  --zone $zone_1 \
+  --release-channel rapid
+
+  gcloud compute firewall-rules update $( \
+    gcloud compute firewall-rules list --format 'table(name)' --filter "name~${cluster_1}.*-all" | grep -v NAME \
+  ) --source-ranges $cluster_src_ip_range
+  gcloud container clusters get-credentials $cluster_1 --zone=$zone_1
+  if kubectl config get-contexts | grep $context_1; then
+    kubectl config delete-context $context_1
+  fi
+  kubectl config rename-context $orig_context_1 $context_1
+  # kubectl apply -f gke-asia-northeast-1.yaml --context $context_1
+}
+
+# Cluster#2
+create_cluster_2() {
+  gcloud beta container clusters create $cluster_2 \
+  --machine-type=$machine_type \
+  --num-nodes $init_nodes \
+  --zone $zone_2 \
+  --release-channel rapid
+
+  gcloud compute firewall-rules update $( \
+    gcloud compute firewall-rules list --format 'table(name)' --filter "name~${cluster_2}.*-all" | grep -v NAME \
+  ) --source-ranges $cluster_src_ip_range
+  gcloud container clusters get-credentials $cluster_2 --zone=$zone_2
+  if kubectl config get-contexts | grep $context_2; then
+    kubectl config delete-context $context_2
+  fi
+  kubectl config rename-context $orig_context_2 $context_2
+  # kubectl apply -f gke-asia-northeast-2.yaml --context $context_2
+}
+
+# Cluster#3
+create_cluster_3() {
+  gcloud beta container clusters create $cluster_3 \
+  --machine-type=$machine_type \
+  --num-nodes $init_nodes \
+  --zone $zone_3 \
+  --release-channel rapid
+
+  gcloud compute firewall-rules update $( \
+    gcloud compute firewall-rules list --format 'table(name)' --filter "name~${cluster_3}.*-all" | grep -v NAME \
+  ) --source-ranges $cluster_src_ip_range
+  gcloud container clusters get-credentials $cluster_3 --zone=$zone_3
+  if kubectl config get-contexts | grep $context_3; then
+    kubectl config delete-context $context_3
+  fi
+  kubectl config rename-context $orig_context_3 $context_3
+  # kubectl apply -f gke-asia-northeast-3.yaml --context $context_3
+}
+
+create_cluster_1 &
+create_cluster_2 &
+create_cluster_3 &
+
+for job in `jobs -p`
+do
+  wait $job
+done
+

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -eux
+
+./create-cluster-config
+./create-cluster
+./setup-global-dns
+./install-monitor
+./install-yugabytedb
+./enable-monitor

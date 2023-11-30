@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# set -eux
+set -ux
+
+id=$1
+ns=yb-asia-northeast${id}-c
+context=gke_ctxt_${id}
+cluster=yb${id}
+
+helm uninstall $cluster \
+--namespace $ns \
+--kube-context $context --wait
+
+# kubectl delete pvc datadir0-yb-master-0 --namespace $ns --context $context
+# kubectl delete pvc datadir0-yb-master-1 --namespace $ns --context $context
+# kubectl delete pvc datadir1-yb-master-0 --namespace $ns --context $context
+# kubectl delete pvc datadir1-yb-master-1 --namespace $ns --context $context
+# kubectl delete pvc datadir0-yb-tserver-0 --namespace $ns --context $context
+# kubectl delete pvc datadir0-yb-tserver-1 --namespace $ns --context $context
+# kubectl delete pvc datadir1-yb-tserver-0 --namespace $ns --context $context
+# kubectl delete pvc datadir1-yb-tserver-1 --namespace $ns --context $context
+
+kubectl delete pvc -n $ns --context $context -l app=yb-master
+kubectl delete pvc -n $ns --context $context -l app=yb-tserver
+

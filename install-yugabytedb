@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+# Create override files
+
+jinja2 overrides-1.yaml.tmpl clusters.yaml > overrides-1.yaml
+jinja2 overrides-2.yaml.tmpl clusters.yaml > overrides-2.yaml
+jinja2 overrides-3.yaml.tmpl clusters.yaml > overrides-3.yaml
+
+# Install Helm chart
+
+helm repo add yugabytedb https://charts.yugabyte.com
+helm repo update
+
+helm upgrade --install yb1 yugabytedb/yugabyte \
+--namespace yb-${zone_1} \
+-f overrides-1.yaml \
+--set \
+resource.master.limits.cpu=${master_cpu_resource},\
+resource.master.limits.memory=${master_mem_resource}Gi,\
+resource.tserver.limits.cpu=${tserver_cpu_resource},\
+resource.tserver.limits.memory=${tserver_mem_resource}Gi,\
+resource.master.requests.cpu=${master_cpu_resource},\
+resource.master.requests.memory=${master_mem_resource}Gi,\
+resource.tserver.requests.cpu=${tserver_cpu_resource},\
+resource.tserver.requests.memory=${tserver_mem_resource}Gi,\
+serviceMonitor.enabled=true,\
+serviceMonitor.extraLabels.release=prom \
+--kube-context $context_1 --wait &
+
+helm upgrade --install yb2 yugabytedb/yugabyte \
+--namespace yb-${zone_2} \
+-f overrides-2.yaml \
+--set \
+resource.master.limits.cpu=${master_cpu_resource},\
+resource.master.limits.memory=${master_mem_resource}Gi,\
+resource.tserver.limits.cpu=${tserver_cpu_resource},\
+resource.tserver.limits.memory=${tserver_mem_resource}Gi,\
+resource.master.requests.cpu=${master_cpu_resource},\
+resource.master.requests.memory=${master_mem_resource}Gi,\
+resource.tserver.requests.cpu=${tserver_cpu_resource},\
+resource.tserver.requests.memory=${tserver_mem_resource}Gi,\
+serviceMonitor.enabled=true,\
+serviceMonitor.extraLabels.release=prom \
+--kube-context $context_2 --wait &
+
+helm upgrade --install yb3 yugabytedb/yugabyte \
+--namespace yb-${zone_3} \
+-f overrides-3.yaml \
+--set \
+resource.master.limits.cpu=${master_cpu_resource},\
+resource.master.limits.memory=${master_mem_resource}Gi,\
+resource.tserver.limits.cpu=${tserver_cpu_resource},\
+resource.tserver.limits.memory=${tserver_mem_resource}Gi,\
+resource.master.requests.cpu=${master_cpu_resource},\
+resource.master.requests.memory=${master_mem_resource}Gi,\
+resource.tserver.requests.cpu=${tserver_cpu_resource},\
+resource.tserver.requests.memory=${tserver_mem_resource}Gi,\
+serviceMonitor.enabled=true,\
+serviceMonitor.extraLabels.release=prom \
+--kube-context $context_3 --wait &
+
+for job in `jobs -p`
+do
+  wait $job
+done
+

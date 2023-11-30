@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -eux
+
+. config
+
+
+# To access Graphana
+kubectl port-forward --context $context_1 \
+  $(kubectl --context $context_1 get pods -l app.kubernetes.io/name=grafana -n monitoring -o name) \
+  --namespace monitoring 3000
+
